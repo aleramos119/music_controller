@@ -9,6 +9,21 @@ function RoomWithParams() {
     return <Room roomCode={roomCode} />;
 }
 
+function leaveRoom() {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+    };
+
+    fetch('/api/leave-room', requestOptions)
+        .then((_response) => {
+            window.location.href = '/';
+        })
+        .catch((error) => {
+            console.error('Error leaving room:', error);
+        });
+}
+
 function Room() {
     const { roomCode } = useParams();
     const [roomDetails, setRoomDetails] = useState({
@@ -24,6 +39,7 @@ function Room() {
                 const response = await fetch(`/api/get-room?code=${roomCode}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch room details');
+                    window.location.href = '/';
                 }
                 const data = await response.json();
                 setRoomDetails({
@@ -67,7 +83,7 @@ function Room() {
                 <Typography>Host: {roomDetails.isHost.toString()}</Typography>
             </Grid>
             <Grid item xs={12}>
-                <Button variant="contained" color="secondary" onClick={() => console.log('Leave Room')}>
+                <Button variant="contained" color="secondary" onClick={leaveRoom}>
                     Leave Room
                 </Button>
             </Grid>

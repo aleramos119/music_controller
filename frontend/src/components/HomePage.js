@@ -8,6 +8,7 @@ export default class HomePage extends Component {
     constructor(props){
         super(props);
         this.state = {roomCode: null};
+        this.clearRoomCode = this.clearRoomCode.bind(this);
     }
 
     async componentDidMount(){
@@ -34,6 +35,10 @@ export default class HomePage extends Component {
                 </Grid>
             </Grid>
         )
+    }
+
+    clearRoomCode(){
+        this.setState({roomCode: null});
     }
 
     render(){

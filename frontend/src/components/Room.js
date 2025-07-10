@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from 'react-router-dom';
 import { Grid, Button, Typography} from "@mui/material";
-
+import CreateRoomPage from "./CreateRoomPage";
 
 // Create a wrapper component to use hooks
 function RoomWithParams() {
@@ -24,13 +24,23 @@ function leaveRoom() {
         });
 }
 
+
+
 function Room() {
     const { roomCode } = useParams();
     const [roomDetails, setRoomDetails] = useState({
         votesToSkip: 2,
         guestCanPause: false,
         isHost: false,
+        showSettings: false
     });
+    // Function to set showSettings state to a desired value
+    const setShowSettings = (value) => {
+        setRoomDetails(prevDetails => ({
+            ...prevDetails,
+            showSettings: value
+        }));
+    };
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -65,6 +75,43 @@ function Room() {
         );
     }
 
+    function renderSettings(){
+        return (
+            <Grid container spacing={1}>
+                <Grid item xs={12} align="center">
+                    <CreateRoomPage 
+                    update={true} 
+                    votesToSkip={roomDetails.votesToSkip} 
+                    guestCanPause={roomDetails.guestCanPause}
+                    roomCode={roomCode} 
+                    updateCallback={() => {}} />
+                </Grid>
+                <Grid item xs={12} align="center">
+                    <Button variant="contained" color="secondary" onClick={() => setShowSettings(false)}>
+                        Close
+                    </Button>
+                </Grid>
+            </Grid>
+        );
+    }
+
+    function renderSettingsButton() {
+        if (roomDetails.isHost) {
+            return (
+                <Grid item xs={12}>
+                    <Button variant="contained" color="primary" onClick={() => setShowSettings(true)}>
+                        Settings
+                    </Button>
+                </Grid>
+            );
+        }
+        return null;
+    }
+
+    if (roomDetails.showSettings) {
+        return renderSettings();
+    }
+
     return (
         <Grid container spacing={1} direction="column" alignItems="center">
             <Grid item xs={12}>
@@ -82,15 +129,13 @@ function Room() {
             <Grid item xs={12}>
                 <Typography>Host: {roomDetails.isHost.toString()}</Typography>
             </Grid>
+            {roomDetails.isHost && renderSettingsButton()}
             <Grid item xs={12}>
                 <Button variant="contained" color="secondary" onClick={leaveRoom}>
                     Leave Room
                 </Button>
             </Grid>
         </Grid>
-
-
-        
     );
 }
 

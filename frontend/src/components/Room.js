@@ -43,26 +43,28 @@ function Room() {
     };
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchRoomDetails = async () => {
-            try {
-                const response = await fetch(`/api/get-room?code=${roomCode}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch room details');
-                    window.location.href = '/';
-                }
-                const data = await response.json();
-                setRoomDetails({
-                    votesToSkip: data.votes_to_skip,
-                    guestCanPause: data.guest_can_pause,
-                    isHost: data.is_host
-                });
-            } catch (err) {
-                console.error('Error fetching room details:', err);
-                setError(err.message);
+    // Define a callback to refresh room details
+    const fetchRoomDetails = async () => {
+        try {
+            const response = await fetch(`/api/get-room?code=${roomCode}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch room details');
+                window.location.href = '/';
             }
-        };
+            const data = await response.json();
+            setRoomDetails(prevDetails => ({
+                ...prevDetails,
+                votesToSkip: data.votes_to_skip,
+                guestCanPause: data.guest_can_pause,
+                isHost: data.is_host
+            }));
+        } catch (err) {
+            console.error('Error fetching room details:', err);
+            setError(err.message);
+        }
+    };
 
+    useEffect(() => {
         fetchRoomDetails();
     }, [roomCode]);
 
@@ -80,11 +82,12 @@ function Room() {
             <Grid container spacing={1}>
                 <Grid item xs={12} align="center">
                     <CreateRoomPage 
-                    update={true} 
-                    votesToSkip={roomDetails.votesToSkip} 
-                    guestCanPause={roomDetails.guestCanPause}
-                    roomCode={roomCode} 
-                    updateCallback={() => {}} />
+                        update={true} 
+                        votesToSkip={roomDetails.votesToSkip} 
+                        guestCanPause={roomDetails.guestCanPause}
+                        roomCode={roomCode} 
+                        updateCallback={fetchRoomDetails} // <-- use the local function
+                    />
                 </Grid>
                 <Grid item xs={12} align="center">
                     <Button variant="contained" color="secondary" onClick={() => setShowSettings(false)}>
